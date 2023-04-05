@@ -1,0 +1,27 @@
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+
+
+@Entity("User")
+export class User {
+    @PrimaryGeneratedColumn({ type: "bigint" })
+    id: number
+
+    @Column({ type: String, nullable: false })
+    username: string
+
+    @Column({ type: String, nullable: false, unique: true })
+    email: string
+
+    @Column({ type: String, nullable: false })
+    password: string
+
+    @CreateDateColumn({ type: Date })
+    createdAt: Date
+
+    @UpdateDateColumn({ type: Date })
+    updatedAt: Date
+
+    @DeleteDateColumn({ type: Date })
+    deletedAt: Date
+}

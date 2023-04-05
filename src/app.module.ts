@@ -4,12 +4,14 @@ import { TagsModule } from './tags/tags.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmConfig } from 'orm-config';
 import { TagsService } from './tags/tags.service';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(OrmConfig.options),
     ConfigModule.forRoot(),
-    TagsModule
+    TagsModule,
+    UserModule
   ],
   controllers: [],
   providers: [],
