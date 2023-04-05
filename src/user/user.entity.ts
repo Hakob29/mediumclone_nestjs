@@ -1,7 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
-
 @Entity("User")
 export class User {
     @PrimaryGeneratedColumn({ type: "bigint" })
@@ -15,6 +14,12 @@ export class User {
 
     @Column({ type: String, nullable: false })
     password: string
+
+    @Column({ type: String, nullable: true })
+    image: string
+
+    @Column({ type: String, nullable: true })
+    bio: string
 
     @CreateDateColumn({ type: Date })
     createdAt: Date

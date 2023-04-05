@@ -1,8 +1,14 @@
 
 export class UserResponse {
 
-    readonly username: string
+    user: {
+        readonly username: string
 
-    readonly email: string
+        readonly email: string
+
+        readonly image: string
+
+        readonly bio: string
+    }
 
 }

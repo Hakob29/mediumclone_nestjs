@@ -22,11 +22,35 @@ export class UserService {
             });
             await this.userRepo.save(user);
             return {
-                username: user.username,
-                email: user.email
+                user: {
+                    username: user.username,
+                    email: user.email,
+                    image: user.image,
+                    bio: user.bio
+                }
             }
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    //GET ALL USERS
+    async getUsers(): Promise<UserResponse[]> {
+        try {
+            const users = await this.userRepo.find();
+            return users.map((user) => {
+                return {
+                    user: {
+                        username: user.username,
+                        email: user.email,
+                        image: user.image,
+                        bio: user.bio
+
+                    }
+                }
+            })
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.NOT_FOUND);
         }
     }
 }
