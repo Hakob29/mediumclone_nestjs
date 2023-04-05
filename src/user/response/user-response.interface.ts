@@ -1,5 +1,5 @@
 
-export class UserResponse {
+export interface UserResponseInterface {
 
     user: {
         readonly username: string

@@ -5,13 +5,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmConfig } from 'orm-config';
 import { TagsService } from './tags/tags.service';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(OrmConfig.options),
     ConfigModule.forRoot(),
     TagsModule,
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],

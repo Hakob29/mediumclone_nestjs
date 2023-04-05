@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from "bcrypt"
-import { UserResponse } from './response/user-response';
+import { UserResponseInterface } from './response/user-response.interface';
 
 @Injectable()
 export class UserService {
@@ -14,7 +14,7 @@ export class UserService {
     ) { }
 
     //CREATE USER
-    async createUser(dto: CreateUserDto): Promise<UserResponse> {
+    async createUser(dto: CreateUserDto): Promise<UserResponseInterface> {
         try {
             const user = this.userRepo.create({
                 ...dto,
@@ -35,7 +35,7 @@ export class UserService {
     }
 
     //GET ALL USERS
-    async getUsers(): Promise<UserResponse[]> {
+    async getUsers(): Promise<UserResponseInterface[]> {
         try {
             const users = await this.userRepo.find();
             return users.map((user) => {
