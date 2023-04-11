@@ -1,10 +1,12 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseInterface } from './response/user-response.interface';
 import { SignInDto } from './dto/login.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { JwtTokenResponseInterface } from './response/jwt-response.interface';
+import { AuthGuard } from '@nestjs/passport';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -32,9 +34,28 @@ export class UserController {
     }
 
     //GET ALL USERS
+    @UseGuards(AuthGuard("jwt"))
     @Get("/all")
     async getUsers(): Promise<UserResponseInterface[]> {
         return await this.userService.getUsers();
+    }
+
+
+    //UPDATE USER
+    @UseGuards(AuthGuard("jwt"))
+    @Put("/update/:id")
+    async updateUser(
+        @Param("id") id: number,
+        @Body() dto: UpdateUserDto
+    ): Promise<UserResponseInterface> {
+        return await this.userService.updateUser(id, dto);
+    }
+
+    //DELETE USER
+    @UseGuards(AuthGuard("jwt"))
+    @Delete("/delete/:id")
+    async deleteUser(@Param("id") id: number): Promise<string> {
+        return await this.userService.deleteUser(id);
     }
 
 }

@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
+import { JwtStrategy } from './auth.guard';
 
 @Module({
   imports: [
@@ -10,10 +11,9 @@ import { User } from 'src/user/user.entity';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' },
     }),
   ],
-  providers: [AuthService, JwtService],
+  providers: [AuthService, JwtService, JwtStrategy],
   exports: [AuthService]
 })
 export class AuthModule { }

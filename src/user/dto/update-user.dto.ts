@@ -1,8 +1,6 @@
 import { IsEmail, IsOptional, IsString, Length, Max, Min, ValidateIf } from "class-validator"
 
-
-export class CreateUserDto {
-
+export class UpdateUserDto {
     @IsString()
     readonly username: string
 
@@ -20,5 +18,4 @@ export class CreateUserDto {
     @IsOptional()
     @IsString()
     readonly image: string
-
 }
