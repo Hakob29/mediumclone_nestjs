@@ -27,7 +27,9 @@ export class UserService {
                     username: user.username,
                     email: user.email,
                     image: user.image,
-                    bio: user.bio
+                    bio: user.bio,
+                    article: user.article
+
                 }
             }
         } catch (err) {
@@ -38,15 +40,15 @@ export class UserService {
     //GET ALL USERS
     async getUsers(): Promise<UserResponseInterface[]> {
         try {
-            const users = await this.userRepo.find();
+            const users = await this.userRepo.find({ relations: ['article'] });
             return users.map((user) => {
                 return {
                     user: {
                         username: user.username,
                         email: user.email,
                         image: user.image,
-                        bio: user.bio
-
+                        bio: user.bio,
+                        article: user.article
                     }
                 }
             })
@@ -68,8 +70,8 @@ export class UserService {
                     username: user.username,
                     email: user.email,
                     image: user.image,
-                    bio: user.bio
-
+                    bio: user.bio,
+                    article: user.article
                 }
             }
         } catch (err) {
@@ -79,8 +81,10 @@ export class UserService {
     //DELETE USER
     async deleteUser(id: number): Promise<string> {
         try {
-            await this.userRepo.delete(id);
-            return `User with id: ${id}, has been successfully deleted!`
+            const user = await this.userRepo.findOne({ where: { id: id } });
+            if (!user) throw new HttpException("Not Found!", HttpStatus.NOT_FOUND);
+            await this.userRepo.delete(user.id);
+            return `User with id: ${user.id}, has been successfully deleted!`
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.NOT_FOUND);
         }

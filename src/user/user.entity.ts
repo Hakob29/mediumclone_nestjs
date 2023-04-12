@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Article } from "src/article/article.entity";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
 @Entity("User")
@@ -20,6 +21,9 @@ export class User {
 
     @Column({ type: String, nullable: true })
     bio: string
+
+    @OneToMany(() => Article, (Article) => Article.author, { cascade: true })
+    article: Article[]
 
     @CreateDateColumn({ type: Date })
     createdAt: Date

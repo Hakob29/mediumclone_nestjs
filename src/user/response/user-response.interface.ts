@@ -1,3 +1,4 @@
+import { Article } from "src/article/article.entity"
 
 export interface UserResponseInterface {
 
@@ -9,6 +10,8 @@ export interface UserResponseInterface {
         readonly image: string
 
         readonly bio: string
+
+        readonly article: Article[]
     }
 
 }
