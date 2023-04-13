@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -6,6 +6,7 @@ import { User } from 'src/user/user.entity';
 import { CurrentUser } from 'src/auth/decerators/current-user.decorator';
 import { ArticleResponseInterface } from './response/article-response.interface';
 import { Article } from './article.entity';
+import { UpdateArticleDto } from './dto/update-article.dto';
 
 
 
@@ -30,5 +31,38 @@ export class ArticleController {
     @Get("/all")
     async getAll(): Promise<Article[]> {
         return await this.articleService.getAll();
+    }
+
+    //GET ARTICLE BY SLUG
+    @UseGuards(AuthGuard("jwt"))
+    @Get("/:slug")
+    async getArticle(
+        @Param("slug") slug: string
+    ): Promise<ArticleResponseInterface> {
+        return await this.articleService.getArticle(slug);
+    }
+
+
+
+    //UPDATE ARTICLE
+    @UseGuards(AuthGuard("jwt"))
+    @Put("/update/:slug")
+    async updateArticle(
+        @Param("slug") slug: string,
+        @Body() dto: UpdateArticleDto,
+        @CurrentUser() user: User
+    ): Promise<ArticleResponseInterface> {
+        return await this.articleService.updateArticle(slug, dto, user);
+    }
+
+
+    //DELETE ARTICE BY SLUG
+    @UseGuards(AuthGuard("jwt"))
+    @Delete("/:slug")
+    async deleteArticle(
+        @Param("slug") slug: string,
+        @CurrentUser() user: User
+    ): Promise<String> {
+        return await this.articleService.deleteArticle(slug, user);
     }
 }

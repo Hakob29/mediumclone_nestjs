@@ -84,7 +84,7 @@ export class UserService {
             const user = await this.userRepo.findOne({ where: { id: id } });
             if (!user) throw new HttpException("Not Found!", HttpStatus.NOT_FOUND);
             await this.userRepo.delete(user.id);
-            return `User with id: ${user.id}, has been successfully deleted!`
+            return `User with id: ${id}, has been successfully deleted!`
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.NOT_FOUND);
         }
