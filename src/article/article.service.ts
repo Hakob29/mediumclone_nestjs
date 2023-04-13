@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Article } from './article.entity';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { ArticleResponseInterface } from './response/article-response.interface';
 import slugify from 'slugify';
@@ -13,7 +13,9 @@ import { ArticlesResponseInterface } from './response/articles-response.interfac
 export class ArticleService {
     constructor(
         @InjectRepository(Article)
-        private readonly articleRepo: Repository<Article>
+        private readonly articleRepo: Repository<Article>,
+        @InjectRepository(User)
+        private readonly userRepo: Repository<User>
     ) { }
 
 
@@ -51,8 +53,34 @@ export class ArticleService {
             const queryBuilder = await this.articleRepo
                 .createQueryBuilder("articles")
                 .leftJoinAndSelect("articles.author", "author");
-            const articles = await queryBuilder.getMany();
+            queryBuilder.orderBy("articles", "DESC")
             const count = await queryBuilder.getCount();
+
+            if (query.tag) {
+                queryBuilder.andWhere('articles.tagList ILIKE :tag', {
+                    tag: `%${query.tag}%`
+                })
+            }
+
+            if (query.author) {
+                const author = await this.userRepo.findOne({
+                    where: {
+                        username: query.author
+                    }
+                })
+                queryBuilder.andWhere("articles.authorId = :id", {
+                    id: author.id
+                })
+            }
+
+            if (query.limit) {
+                queryBuilder.limit(query.limit)
+            }
+            if (query.offset) {
+                queryBuilder.offset(query.offset)
+            }
+
+            const articles = await queryBuilder.getMany();
             return {
                 articles: articles,
                 articleCount: count

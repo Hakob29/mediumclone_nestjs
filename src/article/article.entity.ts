@@ -20,7 +20,7 @@ export class Article {
     @Column({ type: String })
     body: string
 
-    @Column({ type: String, array: true, })
+    @Column("simple-array")
     tagList: string[]
 
     @Column({ type: Boolean, default: false })
