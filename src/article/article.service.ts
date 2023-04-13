@@ -2,11 +2,12 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Article } from './article.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { User } from 'src/user/user.entity';
 import { ArticleResponseInterface } from './response/article-response.interface';
 import slugify from 'slugify';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticlesResponseInterface } from './response/articles-response.interface';
 
 @Injectable()
 export class ArticleService {
@@ -41,14 +42,27 @@ export class ArticleService {
         }
     }
 
+
+
+
     //GET ALL ARTICLES
-    async getAll(): Promise<Article[]> {
+    async getAll(user: User | null, query: any): Promise<ArticlesResponseInterface> {
         try {
-            return await this.articleRepo.find({ relations: ["author"] })
+            const queryBuilder = await this.articleRepo
+                .createQueryBuilder("articles")
+                .leftJoinAndSelect("articles.author", "author");
+            const articles = await queryBuilder.getMany();
+            const count = await queryBuilder.getCount();
+            return {
+                articles: articles,
+                articleCount: count
+            }
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
     }
+
+
 
 
 

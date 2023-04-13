@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -7,6 +7,7 @@ import { CurrentUser } from 'src/auth/decerators/current-user.decorator';
 import { ArticleResponseInterface } from './response/article-response.interface';
 import { Article } from './article.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticlesResponseInterface } from './response/articles-response.interface';
 
 
 
@@ -29,8 +30,11 @@ export class ArticleController {
     //GET ALL ARTICLES
     @UseGuards(AuthGuard("jwt"))
     @Get("/all")
-    async getAll(): Promise<Article[]> {
-        return await this.articleService.getAll();
+    async getAll(
+        @CurrentUser() user: User | null,
+        @Query() query: any
+    ): Promise<ArticlesResponseInterface> {
+        return await this.articleService.getAll(user, query);
     }
 
     //GET ARTICLE BY SLUG
