@@ -5,9 +5,9 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/user.entity';
 import { CurrentUser } from 'src/auth/decerators/current-user.decorator';
 import { ArticleResponseInterface } from './response/article-response.interface';
-import { Article } from './article.entity';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticlesResponseInterface } from './response/articles-response.interface';
+import { Article } from './article.entity';
 
 
 
@@ -68,5 +68,25 @@ export class ArticleController {
         @CurrentUser() user: User
     ): Promise<String> {
         return await this.articleService.deleteArticle(slug, user);
+    }
+
+    //ADD ARTICLE TO FAVORITES
+    @UseGuards(AuthGuard("jwt"))
+    @Post("/:slug/favorite")
+    async addArticleToFavorites(
+        @Param("slug") slug: string,
+        @CurrentUser() currentUser: User
+    ): Promise<Article> {
+        return await this.articleService.addArticleToFavorites(slug, currentUser)
+    }
+
+    //DISLIKE ARTICLE TO FAVORITES
+    @UseGuards(AuthGuard("jwt"))
+    @Delete("/:slug/favorite")
+    async deleteArticleFromFavorites(
+        @Param("slug") slug: string,
+        @CurrentUser() currentUser: User
+    ): Promise<Article> {
+        return await this.articleService.deleteArticleFromFavorites(slug, currentUser)
     }
 }

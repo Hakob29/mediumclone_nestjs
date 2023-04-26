@@ -28,8 +28,8 @@ export class UserService {
                     email: user.email,
                     image: user.image,
                     bio: user.bio,
-                    article: user.article
-
+                    article: user.article,
+                    favorites: user.favorites
                 }
             }
         } catch (err) {
@@ -40,7 +40,7 @@ export class UserService {
     //GET ALL USERS
     async getUsers(): Promise<UserResponseInterface[]> {
         try {
-            const users = await this.userRepo.find({ relations: ['article'] });
+            const users = await this.userRepo.find({ relations: ["article", "favorites"] });
             return users.map((user) => {
                 return {
                     user: {
@@ -48,7 +48,8 @@ export class UserService {
                         email: user.email,
                         image: user.image,
                         bio: user.bio,
-                        article: user.article
+                        article: user.article,
+                        favorites: user.favorites
                     }
                 }
             })
@@ -71,7 +72,8 @@ export class UserService {
                     email: user.email,
                     image: user.image,
                     bio: user.bio,
-                    article: user.article
+                    article: user.article,
+                    favorites: user.favorites
                 }
             }
         } catch (err) {

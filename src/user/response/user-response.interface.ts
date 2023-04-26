@@ -12,6 +12,8 @@ export interface UserResponseInterface {
         readonly bio: string
 
         readonly article: Article[]
+
+        readonly favorites: Article[]
     }
 
 }

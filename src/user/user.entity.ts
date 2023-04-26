@@ -1,5 +1,5 @@
 import { Article } from "src/article/article.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
 @Entity("User")
@@ -25,6 +25,10 @@ export class User {
     @OneToMany(() => Article, (Article) => Article.author, { cascade: true })
     article: Article[]
 
+    @ManyToMany(() => Article)
+    @JoinTable()
+    favorites: Article[]
+
     @CreateDateColumn({ type: Date })
     createdAt: Date
 
@@ -32,6 +36,5 @@ export class User {
     updatedAt: Date
 
     @DeleteDateColumn({ type: Date })
-    deletedAt: Date
-
+    deletedAt?: Date
 }

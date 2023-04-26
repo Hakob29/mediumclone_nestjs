@@ -8,6 +8,7 @@ import { ArticleResponseInterface } from './response/article-response.interface'
 import slugify from 'slugify';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticlesResponseInterface } from './response/articles-response.interface';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class ArticleService {
@@ -73,6 +74,16 @@ export class ArticleService {
                 })
             }
 
+            if (query.favorited) {
+                const author = await this.userRepo.findOne({ where: { username: query.favorited }, relations: ["favorites"] })
+                const ids = author.favorites.map((article) => article.id);
+                if (ids.length > 0) {
+                    queryBuilder.andWhere('articles.authorId IN (:...ids)', { ids });
+                } else {
+                    queryBuilder.andWhere("1=0")
+                }
+            }
+
             if (query.limit) {
                 queryBuilder.limit(query.limit)
             }
@@ -81,6 +92,7 @@ export class ArticleService {
             }
 
             const articles = await queryBuilder.getMany();
+
             return {
                 articles: articles,
                 articleCount: count
@@ -153,6 +165,50 @@ export class ArticleService {
             if (!article) throw new HttpException("ARTICLE NOT FOUND!!!", HttpStatus.NOT_FOUND);
             await this.articleRepo.delete(article.id);
             return `Article with slug ${slug} has been deleted!!!`;
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //ADD ARTICLE TO FAVORITES
+    async addArticleToFavorites(slug: string, currentUser: User): Promise<Article> {
+        try {
+            const article = await this.articleRepo.findOne({ where: { slug: slug } });
+            if (!article) throw new HttpException("ARTICLE NOT FOUND!", HttpStatus.NOT_FOUND);
+            const user = await this.userRepo.findOne({ where: { id: currentUser["sub"] }, relations: ["favorites"] })
+            if (!user) throw new HttpException("USER NOT FOUND!", HttpStatus.NOT_FOUND);
+            const isNotFavorited = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id) === -1;
+
+            if (isNotFavorited) {
+                user.favorites.push(article);
+                article.favoritesCount++;
+                await this.userRepo.save(user);
+                await this.articleRepo.save(article);
+            }
+            return article;
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    //DISLIKE ARTICLE TO FAVORITES
+    async deleteArticleFromFavorites(slug: string, currentUser: User): Promise<Article> {
+        try {
+            const article = await this.articleRepo.findOne({ where: { slug: slug } });
+            if (!article) throw new HttpException("ARTICLE NOT FOUND!", HttpStatus.NOT_FOUND);
+            const user = await this.userRepo.findOne({ where: { id: currentUser["sub"] }, relations: ["favorites"] });
+            if (!user) throw new HttpException("USER NOT FOUND!", HttpStatus.NOT_FOUND);
+
+            const articleIndex = user.favorites.findIndex((articleInFavorites) => articleInFavorites.id === article.id);
+
+            if (articleIndex >= 0) {
+                user.favorites.splice(articleIndex, 1);
+                article.favoritesCount--;
+                await this.userRepo.save(user);
+                await this.articleRepo.save(article);
+            }
+            return article;
+
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
