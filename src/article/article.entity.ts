@@ -35,7 +35,6 @@ export class Article {
     })
     author: User
 
-
     @CreateDateColumn({ type: Date })
     createdAt: Date
 

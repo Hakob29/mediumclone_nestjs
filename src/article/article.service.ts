@@ -90,10 +90,18 @@ export class ArticleService {
                 queryBuilder.offset(query.offset)
             }
 
+            const currentUser = await this.userRepo.findOne({ where: { id: user["sub"] }, relations: ["favorites"] });
+            let favoritedId: number[] = [];
+            if (currentUser.favorites.length > 0) {
+                favoritedId = currentUser.favorites.map((el) => el.id);
+            }
             const articles = await queryBuilder.getMany();
-
+            const favoritedWithFavorites: Article[] = articles.map((article) => {
+                const favorited = favoritedId.includes(article.id);
+                return { ...article, favorited };
+            })
             return {
-                articles: articles,
+                articles: favoritedWithFavorites,
                 articleCount: count
             }
         } catch (err) {
