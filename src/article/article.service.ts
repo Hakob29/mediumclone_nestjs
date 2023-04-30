@@ -8,7 +8,6 @@ import { ArticleResponseInterface } from './response/article-response.interface'
 import slugify from 'slugify';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticlesResponseInterface } from './response/articles-response.interface';
-import { isArray } from 'class-validator';
 
 @Injectable()
 export class ArticleService {
@@ -76,9 +75,9 @@ export class ArticleService {
 
             if (query.favorited) {
                 const author = await this.userRepo.findOne({ where: { username: query.favorited }, relations: ["favorites"] })
-                const ids = author.favorites.map((article) => article.id);
+                const ids = author.favorites.map((el) => el.id);
                 if (ids.length > 0) {
-                    queryBuilder.andWhere('articles.authorId IN (:...ids)', { ids });
+                    queryBuilder.andWhere('articles.id IN (:...ids)', { ids: ids })
                 } else {
                     queryBuilder.andWhere("1=0")
                 }
