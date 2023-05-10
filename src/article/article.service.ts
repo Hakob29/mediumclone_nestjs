@@ -45,8 +45,6 @@ export class ArticleService {
     }
 
 
-
-
     //GET ALL ARTICLES
     async getAll(user: User | null, query: any): Promise<ArticlesResponseInterface> {
         try {
@@ -108,8 +106,6 @@ export class ArticleService {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
     }
-
-
 
 
 

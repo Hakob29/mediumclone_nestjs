@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ArticleModule } from './article/article.module';
 import { AppDataSource } from 'ormconfig';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { AppDataSource } from 'ormconfig';
     TagsModule,
     UserModule,
     AuthModule,
-    ArticleModule
+    ArticleModule,
+    ProfileModule
   ],
   controllers: [],
   providers: [],
