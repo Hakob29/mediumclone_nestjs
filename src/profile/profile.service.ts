@@ -15,28 +15,32 @@ export class ProfileService {
     ) { }
 
 
+
     //GET BY USERNAME
-    async getByUsername(username: string): Promise<ProfileResponseInterface[]> {
+    async getByUsername(username: string, currentUser: User): Promise<ProfileResponseInterface> {
         try {
-            const user = await this.userRepo.find({
+            const user = await this.userRepo.findOne({
                 where: {
                     username: ILike(`%${username}%`)
                 }
             })
             if (!user) throw new HttpException("NOT FOUND", HttpStatus.NOT_FOUND);
-            const result = user.map((e) => {
-                return {
-                    profile: {
-                        id: e.id,
-                        username: e.username,
-                        image: e.image,
-                        bio: e.bio,
-                        following: false
 
-                    }
+            const follow = await this.followRepo.findOne({
+                where: {
+                    followerId: currentUser["sub"],
+                    following: user.id
                 }
             })
-            return result;
+            return {
+                profile: {
+                    id: user.id,
+                    username: user.username,
+                    image: user.image,
+                    bio: user.bio,
+                    following: Boolean(follow)
+                }
+            }
         } catch (err) {
             throw new HttpException("NOT FOUND", HttpStatus.NOT_FOUND);
         }
@@ -79,5 +83,37 @@ export class ProfileService {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
 
+    }
+
+    //UNFOLLOW PROFILE
+    async unFollowProfile(username: string, currentUser: User): Promise<ProfileResponseInterface> {
+        try {
+            const user = await this.userRepo.findOne({
+                where: {
+                    username: ILike(`%${username}%`)
+                }
+            })
+            if (!user) throw new HttpException("NOT FOUND", HttpStatus.NOT_FOUND);
+            if (currentUser["sub"] === user.id) throw new HttpException("CAN'T FOLLOW YOURSELF", HttpStatus.BAD_REQUEST);
+
+            const follow = await this.followRepo.findOne({
+                where: { followerId: currentUser["sub"], following: user.id }
+            })
+            if (follow) {
+                await this.followRepo.delete(follow.id);
+            }
+            return {
+                profile: {
+                    id: user.id,
+                    username: user.username,
+                    image: user.image,
+                    bio: user.bio,
+                    following: false
+                }
+            }
+
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
+        }
     }
 }
