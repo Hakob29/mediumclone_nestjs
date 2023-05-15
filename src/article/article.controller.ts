@@ -8,6 +8,7 @@ import { ArticleResponseInterface } from './response/article-response.interface'
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticlesResponseInterface } from './response/articles-response.interface';
 import { Article } from './article.entity';
+import { query } from 'express';
 
 
 
@@ -35,6 +36,17 @@ export class ArticleController {
         @Query() query: any
     ): Promise<ArticlesResponseInterface> {
         return await this.articleService.getAll(user, query);
+    }
+
+
+    //GET ARTIICLES FEED
+    @UseGuards(AuthGuard("jwt"))
+    @Get("/feed")
+    async getArticlesFeed(
+        @CurrentUser() currentUser: User,
+        @Query() query: any
+    ): Promise<ArticlesResponseInterface> {
+        return await this.articleService.getArticlesFeed(currentUser, query);
     }
 
     //GET ARTICLE BY SLUG

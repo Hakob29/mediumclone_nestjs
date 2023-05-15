@@ -8,6 +8,7 @@ import { ArticleResponseInterface } from './response/article-response.interface'
 import slugify from 'slugify';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ArticlesResponseInterface } from './response/articles-response.interface';
+import { Follow } from 'src/profile/follow.entity';
 
 @Injectable()
 export class ArticleService {
@@ -15,7 +16,9 @@ export class ArticleService {
         @InjectRepository(Article)
         private readonly articleRepo: Repository<Article>,
         @InjectRepository(User)
-        private readonly userRepo: Repository<User>
+        private readonly userRepo: Repository<User>,
+        @InjectRepository(Follow)
+        private readonly followRepo: Repository<Follow>
     ) { }
 
 
@@ -104,6 +107,42 @@ export class ArticleService {
             }
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    //GET ARTIICLES FEED
+    async getArticlesFeed(currentUser: User, query: any): Promise<ArticlesResponseInterface> {
+
+        try {
+            const follows = await this.followRepo.find({
+                where: { followerId: currentUser["sub"] }
+            })
+            if (follows.length === 0) {
+                return { articles: [], articleCount: 0 }
+            }
+
+            const followsUserId = follows.map((follow) => follow.following);
+            const queryBuilder = await this.articleRepo
+                .createQueryBuilder("articles")
+                .leftJoinAndSelect("articles.author", "author")
+                .where("articles.authorId IN (:...ids)", { ids: followsUserId })
+
+            queryBuilder.orderBy("articles.createdAt", "DESC");
+            const articleCount = await queryBuilder.getCount();
+            if (query.limit) {
+                queryBuilder.limit(query.limit)
+            }
+            if (query.offset) {
+                queryBuilder.offset(query.offset)
+            }
+
+            const articles = await queryBuilder.getMany();
+
+            return { articleCount: articleCount, articles }
+
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.BAD_GATEWAY);
         }
     }
 
