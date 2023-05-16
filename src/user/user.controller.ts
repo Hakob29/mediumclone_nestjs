@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseInterface } from './response/user-response.interface';
@@ -7,8 +7,10 @@ import { AuthService } from 'src/auth/auth.service';
 import { JwtTokenResponseInterface } from './response/jwt-response.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { BackendValidationPipe } from 'src/shared/backend-validation.pipe';
 
 @Controller('user')
+@UsePipes(new BackendValidationPipe())
 export class UserController {
     constructor(
         private readonly userService: UserService,
@@ -27,6 +29,7 @@ export class UserController {
     //SIGNIN
     @HttpCode(200)
     @Post("/signin")
+    @UsePipes(new BackendValidationPipe())
     async signIn(
         @Body() dto: SignInDto
     ): Promise<JwtTokenResponseInterface> {
